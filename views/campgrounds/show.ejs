@@ -1,10 +1,44 @@
 <% layout('layouts/boilerplate') %>
     <link rel="stylesheet" href="/stylesheet/style.css">
+    <script>
+        const mapToken = '<%= process.env.MAPBOX_TOKEN %>'
+        let lngLag = '<%= JSON.stringify(campground.geometry.coordinates) %>'
+        const title = '<%= campground.title %>'
+    </script>
 
+    <style>
+        .mapboxgl-popup {
+            max-width: 200px;
+        }
+        
+        .mapboxgl-popup-content {
+            text-align: center;
+            font-family: 'Open Sans', sans-serif;
+        }
+    </style>
     <div class="row">
         <div class="col-6">
-            <div class="card mb-5">
-                <img src="<%= campground.image %>" class="card-img-top" alt="...">
+            <div id='map' style='width: 400px; height: 300px;'></div>
+            <div id="campgroundCarousel" class="carousel slide">
+                <div class="carousel-inner">
+                    <% campground.images.forEach((img, i) => { %>
+                        <div class="carousel-item <%= i === 0 ? 'active' : ''  %>">
+                            <img src="<%= img.url %>" class="d-block w-100" alt="">
+                        </div>
+                    <% }) %>
+                </div>
+                <% if(campground.images.length > 1) { %>
+                <button class="carousel-control-prev" type="button" data-bs-target="#campgroundCarousel" data-bs-slide="prev">
+                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Previous</span>
+                </button>
+                <button class="carousel-control-next" type="button" data-bs-target="#campgroundCarousel" data-bs-slide="next">
+                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Next</span>
+                </button>
+                <% } %>
+            </div>
+            <div class="card mb-5">             
                 <div class="card-body">
                     <h5 class="card-title">
                         <%= campground.title %>
@@ -24,13 +58,14 @@
                 </ul>
                 <% if(currentUser && campground.author.equals(currentUser._id)) { %>
                     <div class="card-body">
-                        <a class="card-link btn btn-info" href="/campgrounds/<%= campground._id %>/edit">Edit</a>
+                        <a class="card-link btn btn-info"
+                            href="/campgrounds/<%= campground._id %>/edit">Edit</a>
                         <form class="d-inline" action="/campgrounds/<%= campground._id %>/?_method=Delete"
                             method="post">
                             <button class="btn btn-danger" type="submit">Delete</button>
                         </form>
                     </div>
-                    <% } %>
+                <% } %>
             </div>
         </div>
         <div class="col-6">
@@ -92,3 +127,5 @@
                         <% } %>
         </div>
     </div>
+
+<script src="/javascripts/showPageMap.js"></script>
